@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { LayoutDashboard, Search, Package, Loader2, RefreshCw } from 'lucide-react';
+import { Package, Search, Loader2, RefreshCw } from 'lucide-react';
 import AdminDashboard from './AdminDashboard';
 import AdminTable from '../components/AdminTable';
 
@@ -13,12 +13,7 @@ export default function Dashboard() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  // If Admin, render the full admin dashboard
-  if (user?.role === 'admin') {
-    return <AdminDashboard />;
-  }
-
-  // If User, render the user dashboard (My Orders)
+  // ✅ ALL hooks must be called unconditionally — before any early return
   const fetchShipments = useCallback(async () => {
     setLoading(true);
     try {
@@ -35,13 +30,20 @@ export default function Dashboard() {
   }, [search]);
 
   useEffect(() => {
+    // Skip fetching for admins — they use AdminDashboard
+    if (user?.role === 'admin') return;
     fetchShipments();
-  }, [fetchShipments]);
+  }, [fetchShipments, user]);
 
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 400);
     return () => clearTimeout(t);
   }, [searchInput]);
+
+  // Render admin dashboard after all hooks are called
+  if (user?.role === 'admin') {
+    return <AdminDashboard />;
+  }
 
   return (
     <div className="container-app py-12 md:py-20">
@@ -82,9 +84,16 @@ export default function Dashboard() {
           <Loader2 className="w-8 h-8 text-primary-500 animate-spin mx-auto mb-3" />
           <p className="text-slate-500">Loading your shipments…</p>
         </div>
+      ) : shipments.length === 0 ? (
+        <div className="text-center py-20 animate-fade-in-up-delay-2">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 flex items-center justify-center">
+            <Package className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-700 mb-1">No shipments yet</h3>
+          <p className="text-slate-500 text-sm">Create your first shipment to see it here.</p>
+        </div>
       ) : (
         <div className="animate-fade-in-up-delay-2">
-          {/* Reuse the AdminTable but we'll configure it to hide actions for normal users */}
           <AdminTable shipments={shipments} onRefresh={fetchShipments} />
         </div>
       )}
