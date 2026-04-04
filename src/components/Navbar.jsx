@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Package, Menu, X, Truck, Search, LayoutDashboard, PlusCircle, LogIn, UserPlus, LogOut, User } from 'lucide-react';
+import { Package, Menu, X, Truck, Search, LayoutDashboard, PlusCircle, LogIn, UserPlus, LogOut, User, MessageSquare, ShieldAlert } from 'lucide-react';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
