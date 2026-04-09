@@ -13,4 +13,18 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // Increase chunk size warning limit (vendor chunks may exceed default 500kB)
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        // Split vendor dependencies into separate cacheable chunks
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['lucide-react', 'react-hot-toast'],
+          'vendor-http': ['axios'],
+        },
+      },
+    },
+  },
 });
